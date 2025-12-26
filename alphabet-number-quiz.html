@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Alphabet Number Quiz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #letter {
+      font-size: 64px;
+      margin: 20px;
+    }
+    input {
+      font-size: 24px;
+      width: 80px;
+      text-align: center;
+    }
+    #feedback {
+      margin-top: 10px;
+      height: 24px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>What number is this letter?</h1>
+<p>(A = 1, Z = 26)</p>
+
+<div id="letter"></div>
+
+<input id="answer" type="number" autofocus />
+
+<div id="feedback"></div>
+
+<script>
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let currentLetter = "";
+
+  function newQuestion() {
+    const index = Math.floor(Math.random() * 26);
+    currentLetter = alphabet[index];
+    document.getElementById("letter").textContent = currentLetter;
+    document.getElementById("answer").value = "";
+    document.getElementById("feedback").textContent = "";
+  }
+
+  document.getElementById("answer").addEventListener("input", function () {
+    const input = Number(this.value);
+    const correct = alphabet.indexOf(currentLetter) + 1;
+
+    if (!input) return;
+
+    if (input === correct) {
+      document.getElementById("feedback").textContent = "✓";
+      newQuestion();
+    } else {
+      document.getElementById("feedback").textContent = "✗";
+    }
+  });
+
+  newQuestion();
+</script>
+
+</body>
+</html>
