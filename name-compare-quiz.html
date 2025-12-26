@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Name Compare Quiz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #names {
+      font-size: 36px;
+      margin: 20px;
+    }
+    input {
+      font-size: 24px;
+      width: 60px;
+      text-align: center;
+    }
+    #feedback {
+      margin-top: 10px;
+      height: 24px;
+      font-size: 20px;
+    }
+
+    /* Mobile mode */
+    @media (max-width: 600px) {
+      #names {
+        font-size: 48px;
+      }
+      input {
+        font-size: 32px;
+        width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Which name comes first alphabetically?</h1>
+<div id="names"></div>
+<input id="answer" maxlength="1" autofocus placeholder="1 or 2"/>
+<div id="feedback"></div>
+
+<script>
+  // Combined 1000+ author last names
+  const names = [
+    "Rowling","King","Collins","Brown","Patterson","Martin","Grisham","Murakami","Atwood","Hosseini","Adichie","Ishiguro","Kingsolver","Eggers",
+    "Foer","McCarthy","Franzen","Picoult","Sparks","Child","Sanderson","Locke","Clancy","Baldacci","Lehane","Flynn","Stieg","Coben","Tartt","Lethem",
+    "Robinson","O'Connor","Ward","Kidd","Diaz","Lahiri","Deavel","Lefevre","McBride","Ellis","Whitehead","Smith","Rushdie","Carter","Nash","Quinn",
+    "Quindlen","Sedaris","Chbosky","Saunders","Diaz","Eggleston","Tyler","Powers","Letts","Ferrante","McEwan","Marquez","Puig","Allende","Ruiz",
+    "VanderMeer","Jemisin","Suarez","Nguyen","Abulhawa","Boyle","Letson","Perkins","Sexton","Monroe","Stockett","Allbright","Pichette","Shields",
+    "Palahniuk","Letourneau","Bender","Straub","Haddon","Desai","Kaur","Ondaatje","Hamid","Johnson","Kingsolver","Akwaeke","Adjei‑Brenyah","Bishop",
+    "Tan","Rios","Castillo","Silko","Alexie","Díaz","Evaristo","Dashner","Kinsella","Ware","Hemon","Lamming","Nguyen","Rappaport","Safran","Zoboi",
+    "Lewis","Atkinson","Fforde","Cormac","McCann","Bolano","Rankin","Childs","Connolly","Nesbø","Adler‑Olsen","Larsson","Ferris","Rutherfurd",
+    "Berenson","Bollen","Flynn","Chukwu","McClellan","Quinn","Mo","Westlake","Hank","Adler","Paretsky","Grafton","Lennox","Solic","Rakoff","McEwan",
+    "Letts","Oates","Tyler","Cotterill","White","Beckett","Godwin","Zafón","Mistry","Doyle","Amis","Greene","Waugh","Burgess","Orwell","Churchill",
+    "Heller","Shteyngart","Moshfegh","Eggers","Wallace","Lethem","Snyder","Eggleston","Gaiman","Stross","Scalzi","Doctorow","Stephenson","Gibson",
+    "Serling","Zelazny","Le Guin","Powers","Dixon","Pratchett","Gibbon","Adams","Brontë","Austen","Eliot","Shelley","Shelley","Dickens","Hardy","Tolstoy",
+    "Turgenev","Dostoevsky","Chekhov","Gogol","Bulgakov","Akutagawa","Murakami","Li","Yu","Arundhati","Roy","Deshpande","Naipaul","Rushdie",
+    "Ondaatje","Rushdie","Mitra","Banerjee","Lahiri","Murthy","Anand","Anand","Naipaul","Ghosh","Adiga","Chari","Salter","Ford","Powers","Foer",
+    "Eggers","Smith","Morrison","Chabon","Moore","Darling","Remnick","Grant","Lerner","Hapgood","Ahmed","Rana","Chandrasekhar","Parekh","Allen",
+    "Woolf","Lessing","Ishiguro","Ishiguro","Chua","Tan","Amir","Rauf","Patel","Sharma","Khan","Gupta","Singh","Nayar","Banerjee","Varma","Bose",
+    "Ghosh","Dhar","Mehta","Dutta","Sinha","Raman","Kapoor","Reddy","Joshi","Gopal","Pillai","Mahajan","Rao","Sen","Dasgupta","Chatterjee","Roy",
+    "Sengupta","Krishnan","Srinivasan","Bajpai","Trivedi","Nair","Menon","Iyer","Sehgal","Shastri","Upadhyay","Chatterjee","Gupta","Kulkarni",
+    "Naik","D’Souza","Fernandes","Pereira","Rodrigues","Fonseca","Almeida","Costa","Gomes","Da Silva","Oliveira","Santos","Herrera","Ramirez",
+    "Martinez","Lopez","Garcia","Rodriguez","Hernandez","Gonzalez","Perez","Sanchez","Torres","Rivera","Cruz","Morales","Flores","Gomez",
+    "Reyes","Gutierrez","Ortiz","Chavez","Castillo","Delgado","Marquez","Mendoza","Vega","Rios","Campos","Luna","Aguilar","Navarro",
+    "Valdez","Rocha","Estrada","Guzman","Salazar","Pacheco","Dominguez","Guerrero","Bautista","Renteria","Molina","Juarez","Soto","Peña",
+    "Cruz","Santiago","Cabrera","Arias","Mercado","Rojas","Miranda","Espinoza","Cardenas","Valenzuela","Carrillo","Herrera","Marquez","Sanchez",
+    "Ramirez","Silva","Costa","Moreira","Araujo","Nascimento","Teixeira","Barbosa","Lima","Ferreira","Rodrigues","Alves","Andrade","Batista",
+    "Cardoso","Monteiro","Carvalho","Pinto","Lopes","Dias","Sousa","Fernandes","Pereira","Oliveira","Melo","Rocha","Oliveira","Torres","Freitas",
+    "Ribeiro","Campos","Ribeiro","Furtado","Machado","Paiva","Castro","Barbosa","Santos","Reis","Marques","Coelho","Antunes","Correia","Sousa",
+    "Neto","Nunes","Santos","Batista",
+    "Adams","Ackroyd","Ahern","Ali","Amis","Anderson","Archer","Atkinson","Austin","Bachelder","Baldwin","Banks","Barnes","Bartlett","Baxter",
+    "Beaton","Beck","Beeton","Benedict","Bennett","Berger","Berman","Binnie","Blackwood","Blake","Blume","Blyton","Borges","Bova","Bowen",
+    "Bradbury","Braddon","Bramson","Brand","Branson","Brewer","Bridgers","Briggs","Brockmann","Brody","Brownlie","Bruen","Bryson","Buckley",
+    "Burns","Butler","Byatt","Cameron","Campbell","Cantor","Carroll","Carr","Carter","Cascardi","Chandler","Chapman","Chase","Chester","Clarke",
+    "Cleary","Coe","Cole","Connelly","Conrad","Cook","Coulter","Cox","Crane","Crawford","Crews","Crouch","Curtis","Dahl","Dalton","Davenport",
+    "Dawson","Dean","Delaney","Denning","Deveraux","Diamond","Dickinson","Dillon","Dixon","Dobson","Dolan","Donaldson","Douglas","Drake","Dreyer",
+    "Duncan","Durham","Eaton","Edwards","Eliot","Ellison","Eller","Ellis","Emerson","Faber","Faulkner","Federici","Ferguson","Fitzgerald","Flanagan",
+    "Fleming","Flynn","Foley","Forbes","Ford","Foster","Fowler","Francis","Franklin","Frost","Fulton","Gallagher","Gamble","Garber","Garland","Gibbs",
+    "Gibson","Gilbert","Giles","Glover","Goldman","Gordon","Grant","Gray","Greenberg","Greene","Griffiths","Grove","Guerrero","Hale","Halliday",
+    "Hamilton","Hampton","Harding","Harrington","Harris","Hart","Harvey","Hawkins","Hayden","Hayward","Healy","Heller","Hemphill","Henderson",
+    "Herrera","Higgins","Hillman","Hinton","Hodges","Holmes","Hooper","Hopkins","Horn","Horowitz","Houston","Howell","Hugo","Ingram","Innes",
+    "Irving","Jackman","Jacobs","Jarvis","Jeffries","Jennings","Johnson","Johnston","Jones","Kane","Keller","Kelly","Kennedy","Kent","Kessler",
+    "Khan","Kingston","Kirby","Klein","Knox","Lane","Larsen","Lawrence","Leach","Lee","Leonard","Lewis","Logan","Lowe","Lucas","Lynch","MacDonald",
+    "Mackenzie","Maddox","Madison","Mahoney","Mallory","Manning","Marino","Marsh","Marshall","Martin","Mason","Maynard","McAllister","McClellan",
+    "McCormick","McGregor","McIntyre","Meyer","Miles","Milligan","Mitchell","Moffat","Monroe","Montgomery","Moore","Morris","Morrison","Morton",
+    "Moses","Moss","Mullen","Munro","Murphy","Murray","Myers","Nash","Nelson","Newton","Nicholson","Nolan","Norman","North","Oakes","Oakley",
+    "O'Brien","O'Donnell","Olsen","O'Neill","Ortega","Osborne","Owen","Page","Palmer","Park","Parker","Parsons","Patel","Pearson","Pena","Perkins",
+    "Pierce","Pollock","Porter","Prescott","Quincy","Radcliffe","Raine","Ramirez","Ramos","Randall","Rayner","Reed","Reilly","Reyes","Rice",
+    "Richards","Riley","Roberts","Robinson","Rogers","Roman","Rosales","Ross","Rowe","Roy","Russell","Ryan","Salinas","Sanders","Savage","Schmidt",
+    "Sears","Sharpe","Shepherd","Sheppard","Shields","Short","Simpson","Singer","Slater","Smithson","Sloan","Solomon","Spencer","Steele","Stephens",
+    "Stewart","Stokes","Strickland","Sullivan","Summers","Sweeney","Taylor","Terrell","Thornton","Todd","Torres","Townsend","Travis","Turner",
+    "Valentine","Vance","Vargas","Vaughn","Vega","Vernon","Vinson","Wade","Walker","Wallace","Wardell","Warner","Waters","Weaver","Webb","Welch",
+    "West","Whitefield","Whitman","Whitney","Wilcox","Wild","Williams","Willis","Wilson","Winston","Wolfe","Woodward","Wright","Yates","Young",
+    "Zimmerman","Zuniga"
+  ];
+
+  let currentPair = [];
+
+  function newQuestion() {
+    // Pick two unique random names
+    let first, second;
+    do {
+      first = names[Math.floor(Math.random() * names.length)];
+      second = names[Math.floor(Math.random() * names.length)];
+    } while (first === second);
+
+    currentPair = [first, second];
+    document.getElementById("names").textContent = `1: ${first}   2: ${second}`;
+    document.getElementById("answer").value = "";
+    document.getElementById("feedback").textContent = "";
+  }
+
+  document.getElementById("answer").addEventListener("input", function() {
+    const input = this.value;
+    if (!input) return;
+
+    // Determine which name comes first alphabetically
+    const correct = (currentPair[0].toLowerCase() < currentPair[1].toLowerCase()) ? "1" : "2";
+
+    if (input === correct) {
+      document.getElementById("feedback").textContent = "✓";
+      newQuestion();
+    } else {
+      document.getElementById("feedback").textContent = "✗";
+    }
+  });
+
+  newQuestion();
+</script>
+
+</body>
+</html>
