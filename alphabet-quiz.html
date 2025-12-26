@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alphabet Speed Quiz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #letters {
+      font-size: 48px;
+      margin: 20px;
+    }
+    input {
+      font-size: 24px;
+      text-transform: uppercase;
+    }
+    #feedback {
+      margin-top: 10px;
+      height: 24px;
+    }
+@media (max-width: 600px) {
+  body {
+    margin-top: 30px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  #letters, #letter, #number {
+    font-size: 72px;
+  }
+
+  input {
+    font-size: 32px;
+    width: 100px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<h1>Which letter comes first?</h1>
+
+<div id="letters"></div>
+
+<input id="answer" maxlength="1" autofocus />
+
+<div id="feedback"></div>
+
+<script>
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  let currentPair = [];
+
+  function newQuestion() {
+    let a, b;
+    do {
+      a = alphabet[Math.floor(Math.random() * 26)];
+      b = alphabet[Math.floor(Math.random() * 26)];
+    } while (a === b);
+
+    currentPair = [a, b];
+    document.getElementById("letters").textContent = `${a}   ${b}`;
+    document.getElementById("answer").value = "";
+    document.getElementById("feedback").textContent = "";
+  }
+
+  document.getElementById("answer").addEventListener("input", function () {
+    const input = this.value.toUpperCase();
+    if (!input) return;
+
+    const correct = currentPair.slice().sort()[0];
+
+    if (input === correct) {
+      document.getElementById("feedback").textContent = "✓";
+      newQuestion();
+    } else {
+      document.getElementById("feedback").textContent = "✗";
+    }
+  });
+
+  newQuestion();
+</script>
+
+</body>
+</html>
