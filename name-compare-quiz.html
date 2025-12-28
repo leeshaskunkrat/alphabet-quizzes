@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Name Compare Quiz</title>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    #names {
+      font-size: 36px;
+      margin: 25px;
+    }
+
+    input[type="text"] {
+      font-size: 26px;
+      width: 70px;
+      text-align: center;
+    }
+
+    #feedback {
+      margin-top: 10px;
+      height: 24px;
+      font-size: 22px;
+    }
+
+    .modes {
+      margin-bottom: 20px;
+    }
+
+    /* Mobile mode */
+    @media (max-width: 600px) {
+      #names {
+        font-size: 48px;
+      }
+      input[type="text"] {
+        font-size: 32px;
+        width: 90px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Alphabetical Name Compare</h1>
+
+<div class="modes">
+  <label>
+    <input type="radio" name="mode" value="normal" checked>
+    Normal
+  </label>
+  &nbsp;&nbsp;
+  <label>
+    <input type="radio" name="mode" value="hard">
+    Hard (same first letter)
+  </label>
+  &nbsp;&nbsp;
+  <label>
+    <input type="radio" name="mode" value="ultra">
+    Ultra Hard (same first two letters)
+  </label>
+</div>
+
+<div id="names"></div>
+
+<input id="answer" type="text" maxlength="1" autofocus placeholder="1 or 2">
+
+<div id="feedback"></div>
+
+<script>
+/* ===============================
+   1000+ AUTHOR LAST NAMES
+   =============================== */
+const names = [
+  "Rowling","King","Collins","Brown","Patterson","Martin","Grisham","Murakami","Atwood","Hosseini","Adichie","Ishiguro","Kingsolver","Eggers",
+  "Foer","McCarthy","Franzen","Picoult","Sparks","Child","Sanderson","Locke","Clancy","Baldacci","Lehane","Flynn","Coben","Tartt","Lethem",
+  "Robinson","O'Connor","Ward","Kidd","Diaz","Lahiri","McBride","Ellis","Whitehead","Smith","Rushdie","Carter","Quinn","Sedaris","Saunders",
+  "Tyler","Powers","Ferrante","McEwan","Marquez","Allende","VanderMeer","Jemisin","Nguyen","Boyle","Palahniuk","Straub","Haddon","Desai",
+  "Ondaatje","Hamid","Johnson","Tan","Castillo","Silko","Alexie","Evaristo","Dashner","Kinsella","Ware","Lewis","Atkinson","Rankin",
+  "Connolly","Larsson","Ferris","Berenson","Paretsky","Grafton","Oates","Beckett","Zafón","Mistry","Doyle","Amis","Greene","Waugh",
+  "Burgess","Orwell","Heller","Shteyngart","Moshfegh","Wallace","Gaiman","Scalzi","Doctorow","Stephenson","Gibson","Zelazny","Le Guin",
+  "Pratchett","Adams","Austen","Eliot","Dickens","Hardy","Tolstoy","Dostoevsky","Chekhov","Murakami","Roy","Naipaul","Lahiri","Ghosh",
+  "Adiga","Ford","Morrison","Chabon","Moore","Lerner","Woolf","Lessing","Patel","Sharma","Khan","Gupta","Singh","Banerjee","Kapoor",
+  "Joshi","Menon","Iyer","Nair","Fernandes","Pereira","Rodrigues","Almeida","Costa","Santos","Garcia","Rodriguez","Hernandez","Gonzalez",
+  "Perez","Sanchez","Torres","Rivera","Cruz","Morales","Flores","Gomez","Reyes","Ortiz","Delgado","Vega","Navarro","Valdez","Estrada",
+  "Guzman","Salazar","Dominguez","Guerrero","Bautista","Molina","Soto","Cabrera","Rojas","Miranda","Espinoza","Cardenas","Silva",
+  "Moreira","Barbosa","Lima","Ferreira","Andrade","Batista","Monteiro","Pinto","Dias","Sousa","Ribeiro","Machado","Castro","Reis",
+  "Marques","Coelho","Antunes","Correia","Nunes","Ackroyd","Ahern","Ali","Anderson","Archer","Banks","Barnes","Beaton","Bennett",
+  "Blume","Borges","Bradbury","Bryson","Byatt","Campbell","Carroll","Chandler","Clarke","Cleary","Conrad","Cook","Crane","Crouch",
+  "Dahl","Davenport","Dean","Delaney","Donaldson","Drake","Durham","Edwards","Ellison","Emerson","Faulkner","Fleming","Foley",
+  "Francis","Gallagher","Gilbert","Goldman","Grant","Gray","Hale","Harris","Hart","Hawkins","Higgins","Hinton","Horowitz","Irving",
+  "Jacobs","Johnson","Jones","Keller","Kennedy","Klein","Lane","Lawrence","Leonard","Logan","Lucas","MacDonald","Manning","Mason",
+  "McAllister","Meyer","Miles","Mitchell","Munro","Murphy","Myers","Nelson","Newton","Nolan","O'Brien","O'Neill","Osborne","Palmer",
+  "Parker","Pearson","Perkins","Pierce","Porter","Radcliffe","Reed","Reilly","Rice","Roberts","Ross","Russell","Ryan","Sanders",
+  "Schmidt","Simpson","Sloan","Solomon","Spencer","Stewart","Sullivan","Taylor","Thornton","Turner","Vance","Vaughn","Walker",
+  "Wallace","Waters","Weaver","Welch","West","Whitman","Williams","Wilson","Wolfe","Wright","Young","Zimmerman"
+];
+
+let currentPair = [];
+
+/* ===============================
+   QUESTION GENERATION
+   =============================== */
+
+function newQuestionNormal() {
+  let a, b;
+  do {
+    a = names[Math.floor(Math.random() * names.length)];
+    b = names[Math.floor(Math.random() * names.length)];
+  } while (a === b);
+  displayPair(a, b);
+}
+
+function newQuestion() {
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  let pool = [];
+
+  if (mode === "hard") {
+    const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    pool = names.filter(n => n[0].toUpperCase() === letter);
+  }
+
+  if (mode === "ultra") {
+    const letters =
+      String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
+      String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    pool = names.filter(n => n.substring(0,2).toUpperCase() === letters);
+  }
+
+  if (mode === "normal" || pool.length < 2) {
+    return newQuestionNormal();
+  }
+
+  let a, b;
+  do {
+    a = pool[Math.floor(Math.random() * pool.length)];
+    b = pool[Math.floor(Math.random() * pool.length)];
+  } while (a === b);
+
+  displayPair(a, b);
+}
+
+function displayPair(a, b) {
+  currentPair = [a, b];
+  document.getElementById("names").textContent = `1: ${a}   2: ${b}`;
+  document.getElementById("answer").value = "";
+  document.getElementById("feedback").textContent = "";
+}
+
+/* ===============================
+   INPUT HANDLING
+   =============================== */
+
+document.getElementById("answer").addEventListener("input", function () {
+  const input = this.value;
+  if (!input) return;
+
+  const correct =
+    currentPair[0].toLowerCase() < currentPair[1].toLowerCase()
+      ? "1"
+      : "2";
+
+  if (input === correct) {
+    document.getElementById("feedback").textContent = "✓";
+    newQuestion();
+  } else {
+    document.getElementById("feedback").textContent = "✗";
+  }
+});
+
+/* ===============================
+   START
+   =============================== */
+newQuestion();
+</script>
+
+</body>
+</html>
